@@ -4,15 +4,25 @@ import org.junit.Test;
 
 abstract class Money  {
    protected int amount;
-   
-   static Dollar dollar(int amount)  {
-      return new Dollar(amount);
+   protected String currency;
+
+   String currency() {
+       return currency;
    }
 
+   static Money dollar(int amount)  {
+      return new Dollar(amount, "USD");
+   }
+   
    static Money franc(int amount) {
-      return new Franc(amount);
-    }
-	
+      return new Franc(amount, "CHF");
+   }
+
+   Money(int amount, String currency) {
+      this.amount = amount;
+      this.currency = currency;
+   }
+
    abstract Money times(int multiplier); 
 
    public boolean equals(Object object) {
@@ -29,19 +39,6 @@ public void testEquality() {
    assertFalse(Money.franc(5).equals(Money.dollar(5)));
 }
 
-class Dollar {
-   private int amount;
-   Dollar(int amount) {
-      this.amount= amount;
-   }
-   Money times(int multiplier)  {
-      return new Dollar(amount * multiplier);
-   }	
-   public boolean equals(Object object)  {
-        Dollar dollar = (Dollar) object;
-        return amount == dollar.amount;
-}
-}	
 
 public void testMultiplication() {
    Money five = Money.dollar(5);
@@ -56,16 +53,28 @@ public void testFrancMultiplication() {
    assertEquals(Money.franc(15), five.times(3));
 }
 
-class Franc {   
-   private int amount;					
-   Franc(int amount) {      
-      this.amount= amount;
-    }					
-    Money times(int multiplier)  {
-      return new Franc(amount * multiplier);
-   }				 
-    public boolean equals(Object object) {					
-       Franc franc = (Franc) object;      
-       return amount == franc.amount;					
-     }					
+class Franc extends Money {	
+   Franc(int amount, String currency) {
+      super(amount, currency);
+   }
+     
+   Money times(int multiplier)  {
+      return Money.franc(amount * multiplier);
+   }
 }
+
+class Dollar extends Money {	
+   Dollar(int amount, String currency)  {
+      super(amount, currency);
+   }
+	
+   Money times(int multiplier)  {
+      return Money.dollar(amount * multiplier);
+   }
+}
+
+public void testCurrency() {
+   assertEquals("USD", Money.dollar(1).currency());
+   assertEquals("CHF", Money.franc(1).currency());
+}
+
